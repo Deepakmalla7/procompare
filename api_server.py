@@ -1,0 +1,264 @@
+"""
+ProCompare - Player Comparison Lab (standalone server).
+
+Serves the interactive player-comparison lab for the "ProCompare"
+data-science thesis (Softwarica College; author: Dipak Malla). Runs the analysis
+engine over a local CSV snapshot instead of a database - so the lab (profile +
+radar, AHP/TOPSIS similarity, career trajectory, hidden gems, market value) can be
+reproduced with identical numbers on any machine.
+
+    pip install -r requirements.txt
+    python api_server.py
+    # then open http://localhost:8000
+
+All of the engine's database access funnels through get_connection(); here we
+override that to point at an in-memory SQLite database loaded from the CSVs in
+./data, so every command runs unchanged. Provide your own snapshot any time via
+POST /upload.
+"""
+import io
+import json
+import os
+import sqlite3
+import threading
+
+import pandas as pd
+from fastapi import FastAPI, File, Request, Response, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse
+
+import scout_engine as eng
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(HERE, "data")
+_LOCK = threading.Lock()
+
+# One shared in-memory SQLite connection; the engine is serialised behind _LOCK
+# (single local user), so cross-thread use is safe.
+_db = sqlite3.connect(":memory:", check_same_thread=False)
+
+
+# --- psycopg2-style shim over SQLite: translate %s placeholders to ? ----------
+class _Cur:
+    def __init__(self, cur):
+        self._cur = cur
+
+    def execute(self, sql, params=None):
+        sql = sql.replace("%s", "?")
+        self._cur.execute(sql, list(params) if params else [])
+        return self
+
+    def fetchall(self):
+        return self._cur.fetchall()
+
+    def fetchone(self):
+        return self._cur.fetchone()
+
+    @property
+    def description(self):
+        return self._cur.description
+
+    def close(self):
+        self._cur.close()
+
+
+class _Conn:
+    def cursor(self):
+        return _Cur(_db.cursor())
+
+    def execute(self, sql, params=None):
+        return self.cursor().execute(sql, params)
+
+    def commit(self):
+        pass
+
+    def rollback(self):
+        pass
+
+    def close(self):
+        # keep the shared in-memory db alive across requests
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        pass
+
+
+eng.get_connection = lambda: _Conn()
+
+
+def _clear_caches():
+    for name in ("_ALL_LEAGUES_CACHE", "_MS_POOL_CACHE"):
+        c = getattr(eng, name, None)
+        if isinstance(c, dict):
+            c.clear()
+
+
+def load_players_frame(players: pd.DataFrame):
+    """Replace just the players table + its indexes, and refresh the engine caches."""
+    with _LOCK:
+        players.to_sql(
+            "league_season_team_player_data", _db, if_exists="replace", index=False
+        )
+        cur = _db.cursor()
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS ix_season "
+            "ON league_season_team_player_data(season)"
+        )
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS ix_season_league "
+            "ON league_season_team_player_data(season, league)"
+        )
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS ix_player "
+            "ON league_season_team_player_data(player)"
+        )
+        _db.commit()
+        _clear_caches()
+
+
+def load_supp_frame(supplementary: pd.DataFrame):
+    """Replace just the supplementary table + its index, and refresh the caches."""
+    with _LOCK:
+        supplementary.to_sql(
+            "player_supplementary_data", _db, if_exists="replace", index=False
+        )
+        cur = _db.cursor()
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS ix_supp_player "
+            "ON player_supplementary_data(player)"
+        )
+        _db.commit()
+        _clear_caches()
+
+
+def load_frames(players: pd.DataFrame, supplementary: pd.DataFrame):
+    """Rebuild both tables from two DataFrames."""
+    load_players_frame(players)
+    load_supp_frame(supplementary)
+
+
+def _read_csv(raw: bytes, name: str) -> pd.DataFrame:
+    gz = name.endswith(".gz")
+    return pd.read_csv(
+        io.BytesIO(raw), compression="gzip" if gz else None, low_memory=False
+    )
+
+
+def _boot():
+    players = os.path.join(DATA_DIR, "players.csv.gz")
+    supp = os.path.join(DATA_DIR, "supplementary.csv.gz")
+    if os.path.exists(players) and os.path.exists(supp):
+        p = pd.read_csv(players, compression="gzip", low_memory=False)
+        s = pd.read_csv(supp, compression="gzip", low_memory=False)
+        load_frames(p, s)
+        print(f"Loaded {len(p):,} player-season rows + {len(s):,} supplementary rows.")
+    else:
+        print(
+            "No data/players.csv.gz + data/supplementary.csv.gz found - "
+            "upload a snapshot via POST /upload (multipart: players, supplementary)."
+        )
+
+
+_boot()
+
+app = FastAPI(title="ProCompare - Player Comparison Lab")
+
+
+def _json(result) -> Response:
+    # Same serialisation as the course server: default=str tolerates numpy scalars.
+    return Response(json.dumps(result, default=str), media_type="application/json")
+
+
+@app.post("/api/data-scout")
+async def data_scout(request: Request):
+    body = await request.json()
+    fn = eng.COMMANDS.get(body.get("command", ""))
+    if fn is None:
+        return _json({"error": f"unknown command: {body.get('command')}"})
+    with _LOCK:
+        try:
+            return _json(fn(body))
+        except Exception as e:  # mirror the course server's per-command guard
+            return _json({"error": str(e)})
+
+
+@app.post("/upload")
+async def upload(
+    players: UploadFile = File(None), supplementary: UploadFile = File(None)
+):
+    """Upload either file on its own, or both. Each replaces just its own table."""
+    out = {"ok": True}
+    if players is not None:
+        p = _read_csv(await players.read(), players.filename)
+        load_players_frame(p)
+        out["player_rows"] = len(p)
+    if supplementary is not None:
+        s = _read_csv(await supplementary.read(), supplementary.filename)
+        load_supp_frame(s)
+        out["supplementary_rows"] = len(s)
+    if "player_rows" not in out and "supplementary_rows" not in out:
+        return _json({"ok": False, "error": "no file provided"})
+    return out
+
+
+@app.get("/app.js")
+def app_js():
+    return FileResponse(os.path.join(HERE, "app.js"), media_type="text/javascript")
+
+
+@app.get("/app.css")
+def app_css():
+    return FileResponse(os.path.join(HERE, "app.css"), media_type="text/css")
+
+
+# The similarity lab syncs a shortlist here; it stores to localStorage primarily,
+# so a no-op that doesn't return a `shortlist` key keeps the local copy intact.
+@app.get("/api/data-scout/shortlist")
+def shortlist_get():
+    return {}
+
+
+@app.post("/api/data-scout/shortlist")
+async def shortlist_post(request: Request):
+    try:
+        await request.json()
+    except Exception:
+        pass
+    return {"ok": True}
+
+
+@app.get("/status")
+def status():
+    def _count(tbl):
+        try:
+            with _LOCK:
+                return _db.execute(f"SELECT COUNT(*) FROM {tbl}").fetchone()[0]
+        except Exception:
+            return 0
+    return {
+        "player_rows": _count("league_season_team_player_data"),
+        "supplementary_rows": _count("player_supplementary_data"),
+    }
+
+
+@app.get("/")
+def index():
+    idx = os.path.join(HERE, "index.html")
+    if os.path.exists(idx):
+        return FileResponse(idx)
+    return HTMLResponse(
+        "<h1>ProCompare - Player Comparison Lab API</h1>"
+        "<p>POST /api/data-scout</p>"
+    )
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    print("\n" + "=" * 60)
+    print("  ProCompare - Player Comparison Lab is running.")
+    print("  ->  Open  http://localhost:8000  in your browser")
+    print("=" * 60 + "\n")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
