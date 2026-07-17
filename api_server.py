@@ -86,3 +86,33 @@ class _Conn:
 
 
 eng.get_connection = lambda: _Conn()
+
+
+def _clear_caches():
+    for name in ("_ALL_LEAGUES_CACHE", "_MS_POOL_CACHE"):
+        c = getattr(eng, name, None)
+        if isinstance(c, dict):
+            c.clear()
+
+
+def load_players_frame(players: pd.DataFrame):
+    """Replace just the players table + its indexes, and refresh the engine caches."""
+    with _LOCK:
+        players.to_sql(
+            "league_season_team_player_data", _db, if_exists="replace", index=False
+        )
+        cur = _db.cursor()
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS ix_season "
+            "ON league_season_team_player_data(season)"
+        )
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS ix_season_league "
+            "ON league_season_team_player_data(season, league)"
+        )
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS ix_player "
+            "ON league_season_team_player_data(player)"
+        )
+        _db.commit()
+        _clear_caches()
