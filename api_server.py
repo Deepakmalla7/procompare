@@ -116,3 +116,24 @@ def load_players_frame(players: pd.DataFrame):
         )
         _db.commit()
         _clear_caches()
+
+
+def load_supp_frame(supplementary: pd.DataFrame):
+    """Replace just the supplementary table + its index, and refresh the caches."""
+    with _LOCK:
+        supplementary.to_sql(
+            "player_supplementary_data", _db, if_exists="replace", index=False
+        )
+        cur = _db.cursor()
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS ix_supp_player "
+            "ON player_supplementary_data(player)"
+        )
+        _db.commit()
+        _clear_caches()
+
+
+def load_frames(players: pd.DataFrame, supplementary: pd.DataFrame):
+    """Rebuild both tables from two DataFrames."""
+    load_players_frame(players)
+    load_supp_frame(supplementary)
