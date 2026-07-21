@@ -137,3 +137,28 @@ def load_frames(players: pd.DataFrame, supplementary: pd.DataFrame):
     """Rebuild both tables from two DataFrames."""
     load_players_frame(players)
     load_supp_frame(supplementary)
+
+
+def _read_csv(raw: bytes, name: str) -> pd.DataFrame:
+    gz = name.endswith(".gz")
+    return pd.read_csv(
+        io.BytesIO(raw), compression="gzip" if gz else None, low_memory=False
+    )
+
+
+def _boot():
+    players = os.path.join(DATA_DIR, "players.csv.gz")
+    supp = os.path.join(DATA_DIR, "supplementary.csv.gz")
+    if os.path.exists(players) and os.path.exists(supp):
+        p = pd.read_csv(players, compression="gzip", low_memory=False)
+        s = pd.read_csv(supp, compression="gzip", low_memory=False)
+        load_frames(p, s)
+        print(f"Loaded {len(p):,} player-season rows + {len(s):,} supplementary rows.")
+    else:
+        print(
+            "No data/players.csv.gz + data/supplementary.csv.gz found - "
+            "upload a snapshot via POST /upload (multipart: players, supplementary)."
+        )
+
+
+_boot()
