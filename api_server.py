@@ -162,3 +162,34 @@ def _boot():
 
 
 _boot()
+
+
+app = FastAPI(title="ProCompare - Player Comparison Lab")
+
+
+def _json(result) -> Response:
+    # Same serialisation as the course server: default=str tolerates numpy scalars.
+    return Response(json.dumps(result, default=str), media_type="application/json")
+
+
+@app.post("/api/data-scout")
+async def data_scout(request: Request):
+    body = await request.json()
+    fn = eng.COMMANDS.get(body.get("command", ""))
+    if fn is None:
+        return _json({"error": f"unknown command: {body.get('command')}"})
+    with _LOCK:
+        try:
+            return _json(fn(body))
+        except Exception as e:  # mirror the course server's per-command guard
+            return _json({"error": str(e)})
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    print("\n" + "=" * 60)
+    print("  ProCompare - Player Comparison Lab is running.")
+    print("  ->  Open  http://localhost:8000  in your browser")
+    print("=" * 60 + "\n")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
