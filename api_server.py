@@ -185,6 +185,25 @@ async def data_scout(request: Request):
             return _json({"error": str(e)})
 
 
+@app.post("/upload")
+async def upload(
+    players: UploadFile = File(None), supplementary: UploadFile = File(None)
+):
+    """Upload either file on its own, or both. Each replaces just its own table."""
+    out = {"ok": True}
+    if players is not None:
+        p = _read_csv(await players.read(), players.filename)
+        load_players_frame(p)
+        out["player_rows"] = len(p)
+    if supplementary is not None:
+        s = _read_csv(await supplementary.read(), supplementary.filename)
+        load_supp_frame(s)
+        out["supplementary_rows"] = len(s)
+    if "player_rows" not in out and "supplementary_rows" not in out:
+        return _json({"ok": False, "error": "no file provided"})
+    return out
+
+
 if __name__ == "__main__":
     import uvicorn
 
