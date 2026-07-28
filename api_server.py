@@ -204,6 +204,31 @@ async def upload(
     return out
 
 
+@app.get("/status")
+def status():
+    def _count(tbl):
+        try:
+            with _LOCK:
+                return _db.execute(f"SELECT COUNT(*) FROM {tbl}").fetchone()[0]
+        except Exception:
+            return 0
+    return {
+        "player_rows": _count("league_season_team_player_data"),
+        "supplementary_rows": _count("player_supplementary_data"),
+    }
+
+
+@app.get("/")
+def index():
+    idx = os.path.join(HERE, "index.html")
+    if os.path.exists(idx):
+        return FileResponse(idx)
+    return HTMLResponse(
+        "<h1>ProCompare - Player Comparison Lab API</h1>"
+        "<p>POST /api/data-scout</p>"
+    )
+
+
 if __name__ == "__main__":
     import uvicorn
 
