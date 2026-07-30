@@ -163,7 +163,6 @@ def _boot():
 
 _boot()
 
-
 app = FastAPI(title="ProCompare - Player Comparison Lab")
 
 
@@ -202,6 +201,32 @@ async def upload(
     if "player_rows" not in out and "supplementary_rows" not in out:
         return _json({"ok": False, "error": "no file provided"})
     return out
+
+
+@app.get("/app.js")
+def app_js():
+    return FileResponse(os.path.join(HERE, "app.js"), media_type="text/javascript")
+
+
+@app.get("/app.css")
+def app_css():
+    return FileResponse(os.path.join(HERE, "app.css"), media_type="text/css")
+
+
+# The similarity lab syncs a shortlist here; it stores to localStorage primarily,
+# so a no-op that doesn't return a `shortlist` key keeps the local copy intact.
+@app.get("/api/data-scout/shortlist")
+def shortlist_get():
+    return {}
+
+
+@app.post("/api/data-scout/shortlist")
+async def shortlist_post(request: Request):
+    try:
+        await request.json()
+    except Exception:
+        pass
+    return {"ok": True}
 
 
 @app.get("/status")
