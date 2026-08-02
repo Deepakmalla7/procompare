@@ -1,0 +1,47 @@
+/* Seven reading modes. Applied via [data-theme] on <html> by ThemeContext.
+   Variable names are shared by every component and chart (single source of truth). */
+
+:root[data-theme="light"]{
+  --bg:#FFFFFF; --sidebar:#F8F9FA; --card:#FFFFFF; --cardglass:#FFFFFF; --bg2:#F9FAFB;
+  --border:#E5E7EB; --divider:#EEF0F3; --tp:#111827; --ts:#6B7280; --tac:#374151;
+  --a:#059669; --b:#D97706; --ap:rgba(5,150,105,.12); --bp:rgba(217,119,6,.12); --accent:#059669;
+  --grid:rgba(0,0,0,.08); --stripe:#F3F4F6; --glowA:rgba(5,150,105,.3); --glowB:rgba(217,119,6,.3); --dot:rgba(0,0,0,.035); --onA:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  --bg:#0D1117; --sidebar:#0A0D14; --card:#161B27; --cardglass:rgba(22,27,39,.8); --bg2:#0f1420;
+  --border:rgba(255,255,255,.06); --divider:rgba(255,255,255,.05); --tp:#E8EAF0; --ts:#6B7A99; --tac:#A0AEC0;
+  --a:#00E5CC; --b:#FF8C42; --ap:rgba(0,229,204,.1); --bp:rgba(255,140,66,.1); --accent:#00E5CC;
+  --grid:rgba(255,255,255,.08); --stripe:rgba(255,255,255,.03); --glowA:rgba(0,229,204,.5); --glowB:rgba(255,140,66,.5); --dot:rgba(255,255,255,.03); --onA:#04110f;
+}
+:root[data-theme="sepia"]{
+  --bg:#F4ECD8; --sidebar:#EDE3CA; --card:#FAF4E6; --cardglass:#FAF4E6; --bg2:#EFE6CF;
+  --border:#D4B896; --divider:rgba(139,90,60,.14); --tp:#3D2B1F; --ts:#7C5C45; --tac:#5A4432;
+  --a:#2E7D32; --b:#BF6000; --ap:rgba(46,125,50,.1); --bp:rgba(191,96,0,.1); --accent:#2E7D32;
+  --grid:#C4A882; --stripe:rgba(139,90,60,.05); --glowA:rgba(46,125,50,.3); --glowB:rgba(191,96,0,.3); --dot:rgba(139,90,60,.05); --onA:#FFFFFF;
+}
+:root[data-theme="night"]{
+  --bg:#000000; --sidebar:#000000; --card:#0A0A0A; --cardglass:#0A0A0A; --bg2:#0A0A0A;
+  --border:rgba(255,255,255,.04); --divider:rgba(255,255,255,.03); --tp:#FFFFFF; --ts:#555555; --tac:#888888;
+  --a:#00FF88; --b:#FF6600; --ap:rgba(0,255,136,.08); --bp:rgba(255,102,0,.08); --accent:#00FF88;
+  --grid:rgba(255,255,255,.05); --stripe:rgba(255,255,255,.02); --glowA:rgba(0,255,136,.5); --glowB:rgba(255,102,0,.5); --dot:transparent; --onA:#000000;
+}
+:root[data-theme="midnight"]{
+  --bg:#0B1120; --sidebar:#080E1A; --card:#0F1929; --cardglass:rgba(15,25,41,.85); --bg2:#0c1524;
+  --border:rgba(100,149,237,.15); --divider:rgba(100,149,237,.08); --tp:#C8D8F8; --ts:#5A7AAA; --tac:#8FA8D8;
+  --a:#4DA6FF; --b:#FF8C42; --ap:rgba(77,166,255,.1); --bp:rgba(255,140,66,.1); --accent:#6495ED;
+  --grid:rgba(100,149,237,.1); --stripe:rgba(100,149,237,.04); --glowA:rgba(77,166,255,.5); --glowB:rgba(255,140,66,.5); --dot:rgba(100,149,237,.06); --onA:#04110f;
+}
+:root[data-theme="solarized"]{
+  --bg:#FDF6E3; --sidebar:#EEE8D5; --card:#FDF6E3; --cardglass:#FDF6E3; --bg2:#EEE8D5;
+  --border:#93A1A1; --divider:rgba(147,161,161,.3); --tp:#657B83; --ts:#93A1A1; --tac:#586E75;
+  --a:#268BD2; --b:#CB4B16; --ap:rgba(38,139,210,.1); --bp:rgba(203,75,22,.1); --accent:#2AA198;
+  --grid:rgba(147,161,161,.35); --stripe:rgba(147,161,161,.12); --glowA:rgba(38,139,210,.3); --glowB:rgba(203,75,22,.3); --dot:rgba(147,161,161,.12); --onA:#FFFFFF;
+}
+:root[data-theme="focus"]{
+  --bg:#000000; --sidebar:#000000; --card:#000000; --cardglass:#000000; --bg2:#000000;
+  --border:#FFFFFF; --divider:#FFFFFF; --tp:#FFFFFF; --ts:#AAAAAA; --tac:#DDDDDD;
+  --a:#00FF00; --b:#FFFF00; --ap:rgba(0,255,0,.12); --bp:rgba(255,255,0,.12); --accent:#00FF00;
+  --grid:rgba(255,255,255,.25); --stripe:rgba(255,255,255,.05); --glowA:transparent; --glowB:transparent; --dot:transparent; --onA:#000000;
+}
+/* Fallback if no attribute is set yet */
+:root{ --bg:#0D1117; --a:#00E5CC; --b:#FF8C42; --tp:#E8EAF0; --ts:#6B7A99; }
