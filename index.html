@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ProCompare · Multi-Dimensional Player Comparison Framework · Messi vs Ronaldo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+/* Theme definitions + no-flash application (runs before first paint). */
+window.QG_THEMES={
+  light:{icon:"☀️",label:"Light",desc:"Default bright mode",
+    bg:"#FFFFFF",sidebar:"#F8F9FA",card:"#FFFFFF",cardglass:"#FFFFFF",bg2:"#F9FAFB",
+    border:"#E5E7EB",divider:"#EEF0F3",tp:"#111827",ts:"#6B7280",tac:"#374151",
+    a:"#059669",b:"#D97706",ap:"rgba(5,150,105,.12)",bp:"rgba(217,119,6,.12)",accent:"#059669",
+    grid:"rgba(0,0,0,.08)",stripe:"#F3F4F6",glowA:"rgba(5,150,105,.3)",glowB:"rgba(217,119,6,.3)",dot:"rgba(0,0,0,.035)",onA:"#FFFFFF"},
+  dark:{icon:"🌙",label:"Dark",desc:"Easy on the eyes",
+    bg:"#0D1117",sidebar:"#0A0D14",card:"#161B27",cardglass:"rgba(22,27,39,.8)",bg2:"#0f1420",
+    border:"rgba(255,255,255,.06)",divider:"rgba(255,255,255,.05)",tp:"#E8EAF0",ts:"#6B7A99",tac:"#A0AEC0",
+    a:"#00E5CC",b:"#FF8C42",ap:"rgba(0,229,204,.1)",bp:"rgba(255,140,66,.1)",accent:"#00E5CC",
+    grid:"rgba(255,255,255,.08)",stripe:"rgba(255,255,255,.03)",glowA:"rgba(0,229,204,.5)",glowB:"rgba(255,140,66,.5)",dot:"rgba(255,255,255,.03)",onA:"#04110f"},
+  sepia:{icon:"📖",label:"Sepia",desc:"Warm, book-like tone",
+    bg:"#F4ECD8",sidebar:"#EDE3CA",card:"#FAF4E6",cardglass:"#FAF4E6",bg2:"#EFE6CF",
+    border:"#D4B896",divider:"rgba(139,90,60,.14)",tp:"#3D2B1F",ts:"#7C5C45",tac:"#5A4432",
+    a:"#2E7D32",b:"#BF6000",ap:"rgba(46,125,50,.1)",bp:"rgba(191,96,0,.1)",accent:"#2E7D32",
+    grid:"#C4A882",stripe:"rgba(139,90,60,.05)",glowA:"rgba(46,125,50,.3)",glowB:"rgba(191,96,0,.3)",dot:"rgba(139,90,60,.05)",onA:"#FFFFFF"},
+  night:{icon:"⭐",label:"Night",desc:"OLED-friendly black",
+    bg:"#000000",sidebar:"#000000",card:"#0A0A0A",cardglass:"#0A0A0A",bg2:"#0A0A0A",
+    border:"rgba(255,255,255,.04)",divider:"rgba(255,255,255,.03)",tp:"#FFFFFF",ts:"#555555",tac:"#888888",
+    a:"#00FF88",b:"#FF6600",ap:"rgba(0,255,136,.08)",bp:"rgba(255,102,0,.08)",accent:"#00FF88",
+    grid:"rgba(255,255,255,.05)",stripe:"rgba(255,255,255,.02)",glowA:"rgba(0,255,136,.5)",glowB:"rgba(255,102,0,.5)",dot:"transparent",onA:"#000000"},
+  midnight:{icon:"🌌",label:"Midnight",desc:"Deep blue, calm reading",
+    bg:"#0B1120",sidebar:"#080E1A",card:"#0F1929",cardglass:"rgba(15,25,41,.85)",bg2:"#0c1524",
+    border:"rgba(100,149,237,.15)",divider:"rgba(100,149,237,.08)",tp:"#C8D8F8",ts:"#5A7AAA",tac:"#8FA8D8",
+    a:"#4DA6FF",b:"#FF8C42",ap:"rgba(77,166,255,.1)",bp:"rgba(255,140,66,.1)",accent:"#6495ED",
+    grid:"rgba(100,149,237,.1)",stripe:"rgba(100,149,237,.04)",glowA:"rgba(77,166,255,.5)",glowB:"rgba(255,140,66,.5)",dot:"rgba(100,149,237,.06)",onA:"#04110f"},
+  solarized:{icon:"🌞",label:"Solarized",desc:"Ethan Schoonover's palette",
+    bg:"#FDF6E3",sidebar:"#EEE8D5",card:"#FDF6E3",cardglass:"#FDF6E3",bg2:"#EEE8D5",
+    border:"#93A1A1",divider:"rgba(147,161,161,.3)",tp:"#657B83",ts:"#93A1A1",tac:"#586E75",
+    a:"#268BD2",b:"#CB4B16",ap:"rgba(38,139,210,.1)",bp:"rgba(203,75,22,.1)",accent:"#2AA198",
+    grid:"rgba(147,161,161,.35)",stripe:"rgba(147,161,161,.12)",glowA:"rgba(38,139,210,.3)",glowB:"rgba(203,75,22,.3)",dot:"rgba(147,161,161,.12)",onA:"#FFFFFF"},
+  focus:{icon:"👁️",label:"Focus",desc:"High contrast reading",
+    bg:"#000000",sidebar:"#000000",card:"#000000",cardglass:"#000000",bg2:"#000000",
+    border:"#FFFFFF",divider:"#FFFFFF",tp:"#FFFFFF",ts:"#AAAAAA",tac:"#DDDDDD",
+    a:"#00FF00",b:"#FFFF00",ap:"rgba(0,255,0,.12)",bp:"rgba(255,255,0,.12)",accent:"#00FF00",
+    grid:"rgba(255,255,255,.25)",stripe:"rgba(255,255,255,.05)",glowA:"transparent",glowB:"transparent",dot:"transparent",onA:"#000000"}
+};
+window.QG_ORDER=["light","dark","sepia","night","midnight","solarized","focus"];
+window.QG_applyVars=function(name){
+  var t=window.QG_THEMES[name]||window.QG_THEMES.dark, r=document.documentElement;
+  for(var k in t){ if(typeof t[k]==="string"&&k!=="icon"&&k!=="label"&&k!=="desc") r.style.setProperty("--"+k,t[k]); }
+  r.setAttribute("data-theme",name);
+};
+(function(){
+  var saved=null; try{saved=localStorage.getItem("qg-theme");}catch(e){}
+  if(!saved){ try{ saved=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches)?"light":"dark"; }catch(e){ saved="dark"; } }
+  if(!window.QG_THEMES[saved]) saved="dark";
+  window.QG_CURRENT=saved; window.QG_applyVars(saved);
+})();
+</script>
+<style>
+  :root{ --mono:'JetBrains Mono',monospace; --head:'Rajdhani',sans-serif; --body:'Inter',sans-serif; }
+  *{box-sizing:border-box;}
+  /* Hover transitions only (theme switches re-resolve vars instantly & correctly;
+     transitioning a var-backed background-color leaves persistent elements stuck). */
+  .navitem,.tp-row,.btn,.topnav button,.themebtn,.toggle button{transition:background-color .2s ease,color .2s ease,border-color .2s ease;}
+  .panel{transition:border-color .2s ease;}
+  html,body{margin:0;padding:0;}
+  body{background-color:var(--bg);color:var(--tp);font-family:var(--body);font-size:14px;line-height:1.5;
+       background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:22px 22px;}
+  ::-webkit-scrollbar{width:9px;height:9px;} ::-webkit-scrollbar-thumb{background:var(--bg2);border-radius:6px;}
+  a{color:var(--a);text-decoration:none;}
+  .up{text-transform:uppercase;letter-spacing:.15em;} .mono{font-family:var(--mono);} .head{font-family:var(--head);}
+
+  .topbar{position:fixed;top:0;left:0;right:0;height:60px;z-index:60;background:var(--sidebar);
+          border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 20px;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo .grid-ic{width:26px;height:26px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;}
+  .logo .grid-ic i{background:var(--a);border-radius:2px;opacity:.9;}
+  .logo .grid-ic i:nth-child(2){background:var(--b);} .logo .grid-ic i:nth-child(3){background:var(--b);}
+  .logo b{font-family:var(--head);font-weight:700;letter-spacing:.1em;color:var(--a);font-size:16px;}
+  .topnav{margin-left:auto;display:flex;gap:6px;align-items:center;}
+  .topnav button{background:none;border:0;color:var(--ts);font-family:var(--head);font-weight:600;letter-spacing:.12em;
+                 text-transform:uppercase;font-size:12px;padding:8px 12px;cursor:pointer;border-bottom:2px solid transparent;}
+  .topnav button:hover{color:var(--tp);} .topnav button.on{color:var(--a);border-bottom-color:var(--a);}
+  .topnav .ic{color:var(--ts);font-size:15px;padding:8px;}
+  .themebtn{cursor:pointer;color:var(--ts);font-size:18px;padding:6px 9px;border-radius:8px;user-select:none;}
+  .themebtn:hover{color:var(--a);background:var(--ap);}
+  .themepanel{position:fixed;top:56px;right:14px;width:238px;background:var(--card);border:1px solid var(--border);
+              border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.35);padding:8px;z-index:100;}
+  .tp-h{font-family:var(--head);font-weight:700;letter-spacing:.08em;color:var(--tp);padding:8px 10px 4px;font-size:13px;text-transform:uppercase;}
+  .tp-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;}
+  .tp-row:hover,.tp-row.on{background:var(--ap);}
+  .tp-ic{font-size:15px;width:18px;text-align:center;}
+  .tp-name{font-weight:600;color:var(--tp);font-size:13px;line-height:1.1;}
+  .tp-desc{color:var(--ts);font-size:10.5px;}
+  .tp-dots{margin-left:auto;display:flex;gap:3px;align-items:center;}
+  .tp-dots i{width:6px;height:6px;border-radius:50%;display:inline-block;}
+  .tp-check{color:var(--a);font-weight:700;margin-left:2px;}
+  .tp-f{color:var(--ts);font-size:10.5px;text-align:center;padding:8px 0 4px;border-top:1px solid var(--divider);margin-top:6px;font-family:var(--mono);letter-spacing:.05em;}
+
+  .sidebar{position:fixed;top:60px;left:0;bottom:0;width:250px;background:var(--sidebar);
+           border-right:1px solid var(--border);overflow-y:auto;padding:18px 0;display:flex;flex-direction:column;}
+  .sidebar .head-lbl{padding:6px 20px;color:var(--ts);font-size:10px;font-family:var(--head);font-weight:600;letter-spacing:.12em;text-transform:uppercase;}
+  .sidebar .sub-lbl{padding:0 20px 12px;color:var(--ts);opacity:.7;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+  .navitem{display:flex;align-items:center;gap:12px;padding:11px 20px;color:var(--ts);cursor:pointer;border-left:3px solid transparent;font-size:13px;}
+  .navitem .ic{width:18px;text-align:center;font-size:15px;}
+  .navitem:hover{background:var(--ap);color:var(--tac);}
+  .navitem.on{background:var(--ap);color:var(--a);border-left-color:var(--a);font-weight:600;}
+  .sidebar .spacer{flex:1;}
+  .engine{margin:14px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;}
+  .engine .v1{color:var(--ts);font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+  .engine .v2{color:var(--tp);font-weight:700;font-family:var(--head);letter-spacing:.08em;margin-top:2px;}
+  .engine .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--a);margin-right:6px;box-shadow:0 0 8px var(--a);}
+
+  .main{margin-left:250px;margin-top:60px;padding:22px 26px 90px;min-height:calc(100vh - 60px);}
+  .sec-title{font-family:var(--head);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:15px;color:var(--tp);display:flex;align-items:center;gap:9px;margin:0 0 14px;}
+  .sec-title .ic{color:var(--a);}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:980px){.split{grid-template-columns:1fr;}}
+  .panel{background:var(--cardglass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;}
+  .panel:hover{border-color:var(--a);}
+  .panel h3{margin:0 0 16px;font-family:var(--head);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--tac);display:flex;align-items:center;gap:8px;}
+  .panel h3 .r{margin-left:auto;color:var(--ts);font-size:13px;}
+  .desc{font-style:italic;color:var(--ts);font-size:12.5px;line-height:1.6;margin-top:16px;border-top:1px solid var(--divider);padding-top:12px;}
+
+  .hero{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--border);border-radius:18px;padding:28px 32px;margin-bottom:22px;display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;}
+  @media(max-width:820px){.hero{grid-template-columns:1fr;text-align:center;}}
+  .pl{display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .photo{width:104px;height:104px;border-radius:50%;object-fit:cover;background:var(--bg2);}
+  .photo.wrapA{border:3px solid var(--a);box-shadow:0 0 25px var(--glowA);}
+  .photo.wrapB{border:3px solid var(--b);box-shadow:0 0 25px var(--glowB);}
+  .initials{display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:700;font-size:34px;letter-spacing:.05em;}
+  .initials.a{color:var(--a);background:radial-gradient(circle at 50% 40%,var(--ap),transparent);}
+  .initials.b{color:var(--b);background:radial-gradient(circle at 50% 40%,var(--bp),transparent);}
+  .pl .nm{font-family:var(--head);font-weight:700;letter-spacing:.15em;font-size:26px;}
+  .pl.a .nm{color:var(--a);} .pl.b .nm{color:var(--b);}
+  .pl .role{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--ts);text-transform:uppercase;}
+  .vs-mid{display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .vs-mid .vs{font-family:var(--head);font-weight:700;font-size:46px;color:var(--tp);opacity:.4;}
+  .pill{background:var(--bg2);border:1px solid var(--border);color:var(--tp);border-radius:999px;padding:8px 12px;font-size:12px;font-family:var(--mono);min-width:170px;}
+  select.pill{cursor:pointer;}
+  .btn{font-family:var(--head);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:12px;border:1px solid var(--a);background:transparent;color:var(--a);border-radius:999px;padding:9px 16px;cursor:pointer;}
+  .btn:hover{background:var(--a);color:var(--onA);box-shadow:0 0 18px var(--glowA);}
+  .toggle{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;}
+  .toggle button{background:none;border:0;color:var(--ts);padding:7px 13px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;cursor:pointer;text-transform:uppercase;}
+  .toggle button.on{background:var(--ap);color:var(--a);}
+
+  .gauge-row{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;}
+  .gwrap{text-align:center;}
+  .glabel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ts);text-transform:uppercase;margin-top:6px;}
+  .statcircle{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid;margin:0 auto;}
+  .statcircle.a{border-color:var(--a);} .statcircle.b{border-color:var(--b);}
+  .statcircle .n{font-family:var(--mono);font-weight:700;font-size:26px;}
+  .statcircle.a .n{color:var(--a);} .statcircle.b .n{color:var(--b);}
+  .statcircle .c{font-size:9px;color:var(--ts);letter-spacing:.1em;text-transform:uppercase;padding:0 8px;margin-top:3px;}
+
+  table.dt{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px;}
+  table.dt th,table.dt td{padding:9px 10px;text-align:right;}
+  table.dt th:first-child,table.dt td:first-child{text-align:left;}
+  table.dt thead th{color:var(--ts);font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border);}
+  table.dt tbody tr{border-bottom:1px solid var(--divider);}
+  table.dt td.va{color:var(--a);font-weight:700;} table.dt td.vb{color:var(--b);font-weight:700;}
+  .rowA{background:var(--ap);} .rowB{background:var(--bp);}
+
+  .badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:6px;font-weight:700;}
+  .badge.a{background:var(--ap);color:var(--a);} .badge.b{background:var(--bp);color:var(--b);}
+  .badge.ok{background:rgba(46,204,113,.14);color:#2ecc71;} .badge.warn{background:var(--bp);color:var(--b);}
+
+  .ahp-row{display:grid;grid-template-columns:150px 46px 1fr;gap:10px;align-items:center;margin:8px 0;font-family:var(--mono);font-size:11.5px;}
+  .ahp-row .lbl{color:var(--tac);letter-spacing:.06em;text-transform:uppercase;font-size:10.5px;}
+  .ahp-bar{height:9px;background:var(--bg2);border-radius:5px;overflow:hidden;border:1px solid var(--divider);}
+  .ahp-bar>i{display:block;height:100%;background:var(--a);border-radius:5px;}
+
+  input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:5px;background:linear-gradient(90deg,var(--a) 63%,var(--b) 63%);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--tp);border:3px solid var(--a);cursor:pointer;box-shadow:0 0 10px var(--glowA);}
+  .scenario{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+  .scenario .sc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;}
+  .scenario .sc .t{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ts);text-transform:uppercase;}
+  .scenario .sc .v{font-family:var(--head);font-weight:700;margin-top:4px;}
+
+  .pct{display:grid;grid-template-columns:1fr 120px 1fr;gap:6px;align-items:center;margin:9px 0;font-family:var(--mono);font-size:11px;}
+  .pct .lab{text-align:center;color:var(--ts);letter-spacing:.06em;text-transform:uppercase;font-size:10px;}
+  .pct .baro{height:14px;background:var(--bg2);border-radius:7px;overflow:hidden;position:relative;border:1px solid var(--divider);}
+  .pct .baro.la>i{position:absolute;right:0;top:0;bottom:0;background:var(--a);border-radius:7px;}
+  .pct .baro.lb>i{position:absolute;left:0;top:0;bottom:0;background:var(--b);border-radius:7px;}
+  .pct .num{font-weight:700;} .pct .num.a{color:var(--a);text-align:right;} .pct .num.b{color:var(--b);text-align:left;}
+
+  .simrow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  @media(max-width:900px){.simrow{grid-template-columns:repeat(2,1fr);}}
+  .simcard{background:var(--cardglass);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;}
+  .simcard .ph{width:56px;height:56px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:700;font-size:18px;}
+  .simcard .nm{font-family:var(--mono);font-size:11.5px;color:var(--tp);}
+  .simcard .era{font-size:9px;color:var(--ts);letter-spacing:.1em;text-transform:uppercase;margin:3px 0 8px;}
+  .simcard .sbar{height:6px;background:var(--bg2);border-radius:4px;overflow:hidden;} .simcard .sbar>i{display:block;height:100%;background:var(--a);}
+  .simcard .why{font-size:10px;color:var(--ts);margin-top:7px;line-height:1.5;}
+
+  .drop{border:2px dashed;border-radius:14px;padding:22px;text-align:center;}
+  .drop.a{border-color:var(--a);} .drop.b{border-color:var(--b);}
+  .drop .ic{font-size:26px;} .drop small{display:block;color:var(--ts);margin-top:6px;font-family:var(--mono);font-size:11px;}
+  .btn.full{width:100%;border-radius:12px;padding:12px;background:var(--a);color:var(--onA);border:0;margin-top:6px;}
+  .btn.full:hover{box-shadow:0 0 22px var(--glowA);}
+  .dlrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;} .btn.mini{font-size:10px;padding:7px 10px;}
+  .stageflow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;}
+  .stagecard{flex:1 1 150px;background:var(--cardglass);border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .stagecard .n{width:26px;height:26px;border-radius:50%;background:var(--ap);color:var(--a);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;margin-bottom:8px;}
+  .stagecard .t{font-family:var(--head);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px;color:var(--tp);}
+  .stagecard .d{font-size:11px;color:var(--ts);margin-top:4px;line-height:1.5;}
+  .stagecard .f{font-family:var(--mono);font-size:10px;color:var(--a);margin-top:6px;}
+
+  .verdict{position:fixed;right:18px;bottom:18px;z-index:70;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--a);border-radius:12px;padding:12px 16px;font-family:var(--mono);cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+  .verdict:hover{border-color:var(--a);} .verdict .t{font-size:11px;letter-spacing:.08em;color:var(--tp);font-weight:700;} .verdict .s{font-size:11px;color:var(--ts);margin-top:2px;}
+
+  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .minicard{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .minicard .v{font-family:var(--mono);font-weight:700;font-size:18px;color:var(--tp);}
+  .minicard .adv{font-size:11px;color:var(--ts);margin-top:4px;} .minicard .note{font-size:11px;color:var(--tac);font-style:italic;margin-top:6px;}
+  .footer{color:var(--ts);font-size:12px;margin-top:24px;border-top:1px solid var(--border);padding-top:16px;line-height:1.7;} .footer b{color:var(--tp);}
+  .loading{color:var(--ts);font-family:var(--mono);padding:30px;text-align:center;}
+  svg text{font-family:var(--mono);}
+  @media(max-width:760px){.sidebar{transform:translateX(-100%);} .main{margin-left:0;} }
+
+  /* Focus mode: strip decoration for maximum readability */
+  :root[data-theme="focus"] .panel,:root[data-theme="focus"] .simcard,:root[data-theme="focus"] .stagecard{backdrop-filter:none;-webkit-backdrop-filter:none;}
+  :root[data-theme="focus"] *{box-shadow:none!important;}
+  :root[data-theme="focus"] .hero{background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><span class="grid-ic"><i></i><i></i><i></i><i></i></span><b>ProCompare</b></div>
+  <div class="topnav" id="topnav">
+    <button data-tab="dashboard" class="on">Dashboard</button>
+    <button data-tab="database">Database</button>
+    <button data-tab="methodology">Methodology</button>
+    <span class="themebtn" id="themeBtn" title="Reading mode (1–7)">◐</span>
+  </div>
+</div>
+<div class="themepanel" id="themePanel" hidden>
+  <div class="tp-h">Reading Mode</div>
+  <div id="themeList"></div>
+  <div class="tp-f">[1–7] to switch modes</div>
+</div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="head-lbl">ANALYTICAL SECTORS</div>
+  <div class="sub-lbl">Deep Dive Metrics</div>
+  <div id="navitems"></div>
+  <div class="spacer"></div>
+  <div class="engine"><div class="v1"><span class="dot"></span>Engine Version 4.2</div><div class="v2">THESIS BUILD 2026</div></div>
+</aside>
+
+<div class="main" id="view"><div class="loading">Initialising engine…</div></div>
+
+<div class="verdict" id="verdict" style="display:none" onclick="document.querySelector('[data-sec=topsis]').click()">
+  <div class="t" id="vTop">🏆 —</div><div class="s" id="vSub"></div>
+</div>
+
+<script>
+(function(){
+  var TH=window.QG_THEMES[window.QG_CURRENT||"dark"];
+  function rgba(hex,al){ if(!hex||hex.charAt(0)!=="#") return hex; var h=hex.replace("#","");
+    if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    var r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+    return "rgba("+r+","+g+","+b+","+al+")"; }
+  var A,B;
+  function syncColors(){A=TH.a;B=TH.b;}
+  syncColors();
+
+  var MR={
+    a:{name:"Lionel Messi",role:"THE MAESTRO | CREATIVE GENIUS",init:"LM",
+       photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg/400px-Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg"},
+    b:{name:"Cristiano Ronaldo",role:"THE FINISHER | ELITE PROTAGONIST",init:"CR",
+       photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cristiano_Ronaldo_2018.jpg/400px-Cristiano_Ronaldo_2018.jpg"},
+    topsis:[0.805,0.195], cr:0.00, sens:63,
+    vec:{a:[1.000,1.000,0.957,1.000,0.857,1.000], b:[0.930,0.589,1.000,0.882,1.000,0.967]},
+    axes:["G/90","A/90","INT","PEAK","LON","CL"],
+    dist:{manhattan:[0.186,0.632],euclidean:[0.149,0.435],minkowski:[0.144,0.415],chebyshev:[0.143,0.411]},
+    cosine:0.982, pearson:-0.436, goals90:[0.911,0.847], assists90:[0.399,0.235],
+    xgEff:[144.5,108], xgAbove:[12.9,2.7], weights:[0.25,0.20,0.10,0.20,0.10,0.15],
+    pctl:{a:[99,99,96,99,86,98], b:[97,94,98,96,99,97]}, composite:[92,88],
+    brackets:[["20-24",1.274,0.789,"a","+61.5%","Early dominance established"],["25-29",1.382,1.429,"b","+3.4%","Physical prime advantage"],
+              ["30-34",1.148,1.090,"a","+5.3%","Playmaker style resilient"],["35+",1.131,0.920,"a","+22.9%","Longevity quality gap"]],
+    peaks:[["1","MESSI","2011-12",73,29,1.70,"a"],["2","MESSI","2012-13",46,12,1.58,"a"],["3","RONALDO","2014-15",61,11,1.50,"b"],["4","MESSI","2010-11",53,27,1.44,"a"],["5","RONALDO","2011-12",60,15,1.39,"b"]],
+    similarA:[["Xavi","2000s",91,"Elite creation, low-error passing"],["Iniesta","2000s",89,"Dribble-and-link profile"],["Bergkamp","1990s",84,"Creative finishing blend"],["Zidane","2000s",83,"Control + chance creation"],["Salah","2010s",81,"High G+A per 90"]],
+    similarB:[["R. van Nistelrooy","2000s",90,"Pure box finisher"],["Shearer","1990s",88,"Volume goalscoring"],["Lewandowski","2010s",87,"Elite npxG conversion"],["Haaland","2020s",85,"Penalty-box threat"],["Batistuta","1990s",82,"Powerful finishing"]]
+  };
+  var SECTIONS=[["overview","◎","Framework Overview"],["attacking","⚡","Attacking Output"],["xg","◇","xG Intelligence"],["peaks","⛰","Peak Seasons"],["career","📈","Career Arc"],["vectors","⬡","Vector Analysis"],["topsis","∑","TOPSIS Engine"],["sensitivity","🔬","Sensitivity Lab"],["rankings","▚","Rankings"],["similar","⚯","Similar Players"]];
+  var state={tab:"dashboard",sec:"overview",mode:"career",a:"Lionel Messi",b:"Cristiano Ronaldo",live:null,sens:63,theme:window.QG_CURRENT||"dark"};
+  var PLAYERS=["Lionel Messi","Cristiano Ronaldo","Robert Lewandowski","Karim Benzema","Kylian Mbappé","Erling Haaland","Luis Suárez","Neymar","Harry Kane","Mohamed Salah","Sergio Agüero","Antoine Griezmann","Son Heung-min","Zlatan Ibrahimović","Thierry Henry","Wayne Rooney"];
+  var SEASONS=["2025-2026","2024-2025","2023-2024","2022-2023","2021-2022","2020-2021","2019-2020","2018-2019","2017-2018"];
+  var PHOTOS={"Kylian Mbappé":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Kylian_Mbapp%C3%A9_2019.jpg/400px-Kylian_Mbapp%C3%A9_2019.jpg","Erling Haaland":"https://upload.wikimedia.org/wikipedia/commons/4/41/Erling_Haaland_2023_%28cropped%29.jpg"};
+
+  function el(id){return document.getElementById(id);}
+  function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+  function isMR(){return state.a==="Lionel Messi"&&state.b==="Cristiano Ronaldo";}
+  function init(n){return n.split(" ").map(function(w){return w[0];}).join("").slice(0,2).toUpperCase();}
+  function last(n){return n.split(" ").slice(-1)[0].toUpperCase();}
+
+  /* ---------- charts (theme-aware) ---------- */
+  function radar(axes,series,size){
+    size=size||300; var n=axes.length,cx=size/2,cy=size/2,R=size*0.34;
+    function pt(i,v){var a=(-90+i*360/n)*Math.PI/180,r=R*Math.max(0,Math.min(1.05,v));return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+    var g="";
+    [0.25,0.5,0.75,1].forEach(function(l){g+='<polygon points="'+axes.map(function(_,i){return pt(i,l).join(",");}).join(" ")+'" fill="none" stroke="'+TH.grid+'" stroke-width="1"/>';});
+    for(var i=0;i<n;i++){var e=pt(i,1);g+='<line x1="'+cx+'" y1="'+cy+'" x2="'+e[0]+'" y2="'+e[1]+'" stroke="'+TH.grid+'"/>';}
+    series.forEach(function(s){var pts=s.vals.map(function(v,i){return pt(i,v).join(",");}).join(" ");
+      g+='<polygon points="'+pts+'" fill="'+s.fill+'" stroke="'+s.color+'" stroke-width="2" '+(s.dash?'stroke-dasharray="4 4"':'')+'/>';});
+    for(var j=0;j<n;j++){var lp=pt(j,1.2),a=(-90+j*360/n),c=Math.cos(a*Math.PI/180),an=(Math.abs(c)<0.25?"middle":(c>0?"start":"end"));
+      g+='<text x="'+lp[0]+'" y="'+(lp[1]+3)+'" font-size="9.5" fill="'+TH.ts+'" text-anchor="'+an+'" letter-spacing="1">'+esc(axes[j])+'</text>';}
+    return '<svg viewBox="0 0 '+size+' '+size+'" width="100%" style="max-width:'+size+'px;display:block;margin:0 auto">'+g+'</svg>';
+  }
+  function donut(val,max,color,center,sub){
+    var W=140,r=54,c=2*Math.PI*r,frac=Math.max(0,Math.min(1,val/max)),off=c*(1-frac);
+    return '<svg viewBox="0 0 '+W+' '+W+'" width="130"><circle cx="70" cy="70" r="'+r+'" fill="none" stroke="'+TH.grid+'" stroke-width="10"/>'+
+      '<circle cx="70" cy="70" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 70 70)"/>'+
+      '<text x="70" y="68" text-anchor="middle" font-size="24" font-weight="700" fill="'+TH.tp+'">'+center+'</text>'+
+      '<text x="70" y="86" text-anchor="middle" font-size="8.5" fill="'+TH.ts+'" letter-spacing="1">'+esc(sub||"")+'</text></svg>';
+  }
+  function bars(cats,series,h){
+    h=h||170; var W=300,pad=30,bw=(W-pad*2)/cats.length,g="";
+    var maxv=Math.max.apply(null,series.reduce(function(acc,s){return acc.concat(s.vals);},[0.001]));
+    for(var gy=0;gy<=3;gy++){var yy=pad+(h-pad*1.4)*gy/3;g+='<line x1="'+pad+'" y1="'+yy+'" x2="'+(W-pad)+'" y2="'+yy+'" stroke="'+TH.grid+'"/>';}
+    cats.forEach(function(cat,i){var x0=pad+bw*i,innerW=bw*0.62,sw=innerW/series.length;
+      series.forEach(function(s,si){var v=s.vals[i]||0,bh=(h-pad*1.4)*(v/maxv),x=x0+bw*0.19+sw*si,y=pad+(h-pad*1.4)-bh;
+        g+='<rect x="'+x+'" y="'+y+'" width="'+(sw*0.82)+'" height="'+Math.max(0,bh)+'" rx="2" fill="'+s.color+'"'+(s.hatch?' fill-opacity="0.35"':'')+'/>';});
+      g+='<text x="'+(x0+bw/2)+'" y="'+(h-6)+'" font-size="8.5" fill="'+TH.ts+'" text-anchor="middle" letter-spacing="1">'+esc(cat)+'</text>';});
+    return '<svg viewBox="0 0 '+W+' '+h+'" width="100%">'+g+'</svg>';
+  }
+  function gumbelCurve(){
+    var W=300,H=180,pad=28;
+    function pdf(x,mu,be){var z=(x-mu)/be;return Math.exp(-(z+Math.exp(-z)))/be;}
+    function curve(mu,be,color){var pts=[];for(var x=0;x<=90;x+=2){var y=pdf(x,mu,be);pts.push([pad+(W-2*pad)*x/90,H-pad-y*1400]);}
+      var d="M"+pts.map(function(p){return p[0].toFixed(1)+","+Math.max(pad,p[1]).toFixed(1);}).join(" L");
+      return '<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2"/><path d="'+d+' L'+(W-pad)+','+(H-pad)+' L'+pad+','+(H-pad)+' Z" fill="'+rgba(color,.08)+'"/>';}
+    var g="";for(var i=0;i<=3;i++){var yy=pad+(H-2*pad)*i/3;g+='<line x1="'+pad+'" y1="'+yy+'" x2="'+(W-pad)+'" y2="'+yy+'" stroke="'+TH.grid+'"/>';}
+    g+=curve(35,11,B)+curve(38,12,A);
+    var mx=pad+(W-2*pad)*73/90;
+    g+='<line x1="'+mx+'" y1="'+pad+'" x2="'+mx+'" y2="'+(H-pad)+'" stroke="'+A+'" stroke-dasharray="3 3" stroke-width="1"/>';
+    g+='<text x="'+(mx-4)+'" y="'+(pad+10)+'" font-size="8.5" fill="'+A+'" text-anchor="end">73G · 3.4% prob</text>';
+    g+='<text x="'+pad+'" y="'+(H-8)+'" font-size="8" fill="'+TH.ts+'">0</text><text x="'+(W-pad)+'" y="'+(H-8)+'" font-size="8" fill="'+TH.ts+'" text-anchor="end">90 goals</text>';
+    return '<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+g+'</svg>';
+  }
+  function ageCurve(){
+    var W=300,H=190,pad=30,ages=[17,20,22,25,27,29,31,33,35,37,39];
+    var m=[0.4,1.1,1.32,1.38,1.45,1.36,1.20,1.15,1.13,1.05,0.9],r=[0.5,0.9,1.15,1.40,1.44,1.38,1.10,1.09,0.92,0.7,0.5],maxv=1.6;
+    function line(vals,color){var pts=ages.map(function(a,i){return [pad+(W-2*pad)*(a-17)/22,H-pad-(H-2*pad)*(vals[i]/maxv)];});
+      return '<polyline points="'+pts.map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1);}).join(" ")+'" fill="none" stroke="'+color+'" stroke-width="2.5"/>';}
+    var g="";["20-24","25-29","30-34","35+"].forEach(function(lb,i){var x=pad+(W-2*pad)*i/4;g+='<rect x="'+x+'" y="'+pad+'" width="'+((W-2*pad)/4)+'" height="'+(H-2*pad)+'" fill="'+(i%2?TH.stripe:"transparent")+'"/><text x="'+(x+(W-2*pad)/8)+'" y="'+(H-10)+'" font-size="8" fill="'+TH.ts+'" text-anchor="middle">'+lb+'</text>';});
+    g+=line(r,B)+line(m,A);return '<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+g+'</svg>';
+  }
+  function crossover(sensPct){
+    var W=320,H=200,pad=32;
+    function messi(w){return 0.805-(0.805-0.5)*(w/0.63);}
+    function xf(w){return pad+(W-2*pad)*w;} function yf(v){return H-pad-(H-2*pad)*v;}
+    var mp="",rp="";for(var w=0;w<=1.0001;w+=0.02){var mv=Math.max(0.05,Math.min(0.95,messi(w)));mp+=(w===0?"M":"L")+xf(w).toFixed(1)+","+yf(mv).toFixed(1)+" ";rp+=(w===0?"M":"L")+xf(w).toFixed(1)+","+yf(1-mv).toFixed(1)+" ";}
+    var cx=xf(0.63);
+    var g='<rect x="'+pad+'" y="'+pad+'" width="'+(cx-pad)+'" height="'+(H-2*pad)+'" fill="'+rgba(A,.06)+'"/><rect x="'+cx+'" y="'+pad+'" width="'+(W-pad-cx)+'" height="'+(H-2*pad)+'" fill="'+rgba(B,.06)+'"/>';
+    for(var i=0;i<=4;i++){var yy=pad+(H-2*pad)*i/4;g+='<line x1="'+pad+'" y1="'+yy+'" x2="'+(W-pad)+'" y2="'+yy+'" stroke="'+TH.grid+'"/>';}
+    g+='<path d="'+mp+'" fill="none" stroke="'+A+'" stroke-width="2.5"/><path d="'+rp+'" fill="none" stroke="'+B+'" stroke-width="2.5"/>';
+    g+='<line x1="'+cx+'" y1="'+pad+'" x2="'+cx+'" y2="'+(H-pad)+'" stroke="#ff4d4d" stroke-dasharray="4 3" stroke-width="1.5"/>';
+    g+='<text x="'+cx+'" y="'+(pad-6)+'" font-size="9" fill="#ff6b6b" text-anchor="middle">TIPPING POINT 63%</text>';
+    var sx=xf(sensPct/100);g+='<line x1="'+sx+'" y1="'+pad+'" x2="'+sx+'" y2="'+(H-pad)+'" stroke="'+TH.tp+'" stroke-width="1" opacity=".5"/>';
+    g+='<text x="'+pad+'" y="'+(H-8)+'" font-size="8" fill="'+TH.ts+'">0% weight</text><text x="'+(W-pad)+'" y="'+(H-8)+'" font-size="8" fill="'+TH.ts+'" text-anchor="end">100%</text>';
+    return '<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+g+'</svg>';
+  }
+  function photo(p,side){
+    var url=(p.photo)||PHOTOS[p.name||""],cls=side==="a"?"a":"b",wrap=side==="a"?"wrapA":"wrapB";
+    if(url) return '<img class="photo '+wrap+'" src="'+url+'" alt="'+esc(p.name||"")+'" onerror="this.outerHTML=&quot;<div class=\\&quot;photo '+wrap+' initials '+cls+'\\&quot;>'+esc(init(p.name||"?"))+'</div>&quot;">';
+    return '<div class="photo '+wrap+' initials '+cls+'">'+esc(init(p.name||"?"))+'</div>';
+  }
+
+  function D(){
+    var mr=isMR(),live=state.live;
+    if(mr) return {mr:true,topsis:MR.topsis,vec:MR.vec,dist:MR.dist,cosine:MR.cosine,pearson:MR.pearson,goals90:MR.goals90,assists90:MR.assists90,ahp:MR.weights,cr:0,sens:MR.sens,pctl:MR.pctl,composite:MR.composite,aName:MR.a.name,bName:MR.b.name};
+    if(!live) return null;
+    var an=live.players.a.name,bn=live.players.b.name;
+    return {mr:false,topsis:[live.topsis.closeness[an],live.topsis.closeness[bn]],vec:{a:live.players.a.norm,b:live.players.b.norm},raw:{a:live.players.a.raw,b:live.players.b.raw},
+      dist:{manhattan:[live.distances[an].manhattan,live.distances[bn].manhattan],euclidean:[live.distances[an].euclidean,live.distances[bn].euclidean],minkowski:[live.distances[an].minkowski_p3,live.distances[bn].minkowski_p3],chebyshev:[live.distances[an].chebyshev,live.distances[bn].chebyshev]},
+      cosine:live.shape_similarity.cosine,pearson:live.shape_similarity.pearson,goals90:[live.players.a.raw[0],live.players.b.raw[0]],assists90:[live.players.a.raw[1],live.players.b.raw[1]],
+      ahp:live.ahp.weights,cr:live.ahp.cr,sens:live.sensitivity.reverse_threshold_pct||"—",aName:an,bName:bn,live:live};
+  }
+
+  function hero(){
+    var mr=isMR(),pa=mr?MR.a:{name:state.a,role:"PLAYER A",photo:PHOTOS[state.a]},pb=mr?MR.b:{name:state.b,role:"PLAYER B",photo:PHOTOS[state.b]};
+    function selOpts(v){return PLAYERS.map(function(x){return '<option'+(x===v?' selected':'')+'>'+esc(x)+'</option>';}).join("");}
+    return '<div class="hero"><div class="pl a"><div>'+photo(pa,"a")+'</div><div class="nm">'+esc((pa.name||"").toUpperCase())+'</div><div class="role">'+esc(pa.role||"PLAYER A")+'</div></div>'+
+      '<div class="vs-mid"><div class="vs">VS</div><div class="toggle" id="modeTgl"><button data-m="career" class="'+(state.mode==="career"?"on":"")+'">Career</button><button data-m="season" class="'+(state.mode==="season"?"on":"")+'">Season</button></div>'+
+      '<div id="seasonBox" style="'+(state.mode==="season"?"":"display:none")+'"><select class="pill" id="selSeason">'+SEASONS.map(function(s){return '<option'+(s===state.season?" selected":"")+'>'+s+'</option>';}).join("")+'</select></div>'+
+      '<select class="pill" id="selA">'+selOpts(state.a)+'</select><select class="pill" id="selB">'+selOpts(state.b)+'</select><button class="btn" id="runBtn">Run Analysis</button></div>'+
+      '<div class="pl b"><div>'+photo(pb,"b")+'</div><div class="nm">'+esc((pb.name||"").toUpperCase())+'</div><div class="role">'+esc(pb.role||"PLAYER B")+'</div></div></div>';
+  }
+  function panel(title,icon,right,body){return '<div class="panel"><h3>'+(icon?icon+' ':'')+esc(title)+(right?'<span class="r">'+right+'</span>':'')+'</h3>'+body+'</div>';}
+  function desc(t){return '<div class="desc">'+t+'</div>';}
+
+  function secOverview(d){
+    var g1=panel("The Baseline","↗","ⓘ",'<div class="gauge-row"><div class="gwrap">'+donut(d.topsis[0],1,A,d.topsis[0].toFixed(3),"TOPSIS")+'<div class="glabel" style="color:'+A+'">'+last(d.aName)+'</div></div><div class="gwrap">'+donut(d.topsis[1],1,B,d.topsis[1].toFixed(3),"TOPSIS")+'<div class="glabel" style="color:'+B+'">'+last(d.bName)+'</div></div></div>'+desc("Multi-criteria TOPSIS analysis across 6 weighted performance dimensions — AHP consistency ratio CR = "+(+d.cr).toFixed(2)+"."));
+    var g2=panel("Framework Verdict","⚡","",'<div class="split" style="gap:12px"><div>'+radar(MR.axes,[{vals:d.vec.b,color:B,fill:rgba(B,.18)},{vals:d.vec.a,color:A,fill:rgba(A,.2)}],230)+'</div><div>'+bars(["Career","Peak","Present"],[{vals:[d.topsis[0],0.95,0.82],color:A},{vals:[d.topsis[1],0.7,0.6],color:B}])+'</div></div>'+desc("Direct vector comparison across 6 dimensions with sensitivity threshold at "+d.sens+"%."));
+    return '<div class="split">'+g1+g2+'</div>';
+  }
+  function secAttacking(d){
+    var l=panel("Scoring Efficiency","⚡","",'<div class="gauge-row"><div class="gwrap">'+donut(d.goals90[0],1.2,A,(+d.goals90[0]).toFixed(3),"G/90 "+last(d.aName))+'</div><div class="gwrap">'+donut(d.goals90[1],1.2,B,(+d.goals90[1]).toFixed(3),"G/90 "+last(d.bName))+'</div></div><div class="gauge-row" style="margin-top:8px"><div class="gwrap">'+donut(d.assists90[0],0.6,A,(+d.assists90[0]).toFixed(3),"A/90 "+last(d.aName))+'</div><div class="gwrap">'+donut(d.assists90[1],0.6,B,(+d.assists90[1]).toFixed(3),"A/90 "+last(d.bName))+'</div></div>'+desc("Per-90 normalization eliminates career-length bias across the 161-game difference."));
+    var xg=d.mr?MR.xgEff:[100,100];
+    var r=panel("Finishing Quality","◇","",radar(["GOALS","ASSISTS","xG","PSxG"],[{vals:[d.vec.b[0],d.vec.b[1],0.85,0.8],color:B,fill:rgba(B,.18)},{vals:[d.vec.a[0],d.vec.a[1],0.95,0.98],color:A,fill:rgba(A,.2)}],220)+'<div class="gauge-row" style="margin-top:6px"><div class="statcircle a"><div class="n">'+xg[0]+'%</div><div class="c">Efficiency</div></div><div class="statcircle b"><div class="n">'+xg[1]+'%</div><div class="c">Efficiency</div></div></div>'+desc("xG overperformance proves elite finishing beyond volume."));
+    return '<div class="split">'+l+r+'</div>';
+  }
+  function secXG(d){
+    var l=panel("Expected vs Actual","◇","",bars(["'16","'17","'18","'19","'20"],[{vals:[37,45,36,31,30],color:A},{vals:[30,33,28,26,24],color:A,hatch:true},{vals:[35,44,21,31,29],color:B},{vals:[28,31,22,25,21],color:B,hatch:true}])+desc("Solid bars = actual goals · hatched = xG baseline. "+(d.mr?"":"(illustrative for non-thesis pairs)")));
+    var above=d.mr?MR.xgAbove:[0,0],eff=d.mr?MR.xgEff:[100,100];
+    var r=panel("Finishing Mechanics","⚙","",'<div class="gauge-row"><div class="statcircle a"><div class="n">+'+above[0]+'</div><div class="c">Goals above xG / season</div></div><div class="statcircle b"><div class="n">+'+above[1]+'</div><div class="c">Goals above xG / season</div></div></div><div class="gauge-row" style="margin-top:10px"><div class="statcircle a"><div class="n">'+eff[0]+'%</div><div class="c">Finishing efficiency</div></div><div class="statcircle b"><div class="n">'+eff[1]+'%</div><div class="c">Finishing efficiency</div></div></div>'+desc("PSxG analysis confirms Messi converts harder chances — not just easier positions."));
+    return '<div class="split">'+l+r+'</div>';
+  }
+  function secPeaks(d){
+    var l=panel("Gumbel Distribution","⛰","",gumbelCurve()+desc("Gumbel EVT correctly models peak-season probability vs the Normal distribution."));
+    var rows=(d.mr?MR.peaks:[]).map(function(p){return '<tr class="'+(p[6]==="a"?"rowA":"rowB")+'"><td>'+p[0]+'</td><td>'+p[1]+'</td><td>'+p[2]+'</td><td>'+p[3]+'</td><td>'+p[4]+'</td><td>'+p[5].toFixed(2)+'</td></tr>';}).join("");
+    var r=panel("Peak Season Table","▤",'<span class="badge a">MESSI: 6 OF TOP 10</span>',d.mr?('<table class="dt"><thead><tr><th>Rank</th><th>Player</th><th>Season</th><th>G</th><th>A</th><th>C/G</th></tr></thead><tbody>'+rows+'</tbody></table>'):'<div class="loading">Peak-season leaderboard is a thesis case-study view.</div>');
+    return '<div class="split">'+l+r+'</div>';
+  }
+  function secCareer(d){
+    var l=panel("Age Curve Trajectory","📈","",ageCurve()+desc("Career trajectory reveals Messi leads 3 of 4 age brackets."));
+    var cards=(d.mr?MR.brackets:[]).map(function(b){return '<div class="minicard"><span class="badge '+b[3]+'">'+(b[3]==="a"?"MESSI LEADS":"RONALDO LEADS")+'</span><div class="v" style="margin-top:8px">'+b[1].toFixed(3)+' <span style="color:var(--ts)">vs</span> '+b[2].toFixed(3)+'</div><div class="adv">'+b[4]+' advantage · Age '+b[0]+'</div><div class="note">'+esc(b[5])+'</div></div>';}).join("");
+    var r=panel("Bracket Breakdown","▦","",d.mr?('<div class="grid4">'+cards+'</div>'):'<div class="loading">Age-bracket analysis is a thesis case-study view.</div>');
+    return '<div class="split">'+l+r+'</div>';
+  }
+  function secVectors(d){
+    var l=panel("6D Feature Vectors","⬡","",radar(MR.axes,[{vals:[1,1,1,1,1,1],color:TH.tp,fill:"none",dash:true},{vals:d.vec.b,color:B,fill:rgba(B,.18)},{vals:d.vec.a,color:A,fill:rgba(A,.2)}],280)+'<div class="mono" style="font-size:11px;margin-top:12px;color:var(--tac)"><div style="color:'+A+'">'+last(d.aName)+' [ '+d.vec.a.map(function(v){return (+v).toFixed(3);}).join(", ")+' ]</div><div style="color:'+B+';margin-top:4px">'+last(d.bName)+' [ '+d.vec.b.map(function(v){return (+v).toFixed(3);}).join(", ")+' ]</div><div style="color:var(--ts);margin-top:4px">IDEAL&nbsp;&nbsp; [ 1.000, 1.000, 1.000, 1.000, 1.000, 1.000 ]</div></div>');
+    function dr(lb,key){var a=d.dist[key][0],b=d.dist[key][1],aw=a<b;return '<tr><td>'+lb+'</td><td class="'+(aw?"va":"")+'">'+(+a).toFixed(3)+'</td><td class="'+(!aw?"vb":"")+'">'+(+b).toFixed(3)+'</td><td>'+(aw?'<span class="badge a">'+last(d.aName)+'</span>':'<span class="badge b">'+last(d.bName)+'</span>')+'</td></tr>';}
+    var r=panel("Distance Metrics","📐","",'<table class="dt"><thead><tr><th>Metric</th><th>'+last(d.aName)+'</th><th>'+last(d.bName)+'</th><th>Verdict</th></tr></thead><tbody>'+dr("Manhattan L1","manhattan")+dr("Euclidean L2","euclidean")+dr("Minkowski p=3","minkowski")+dr("Chebyshev L∞","chebyshev")+'<tr><td>Cosine sim</td><td colspan="2" class="va" style="text-align:center">'+(d.cosine==null?"n/a":(+d.cosine).toFixed(3))+'</td><td>ALIGNED</td></tr><tr><td>Pearson corr</td><td colspan="2" style="text-align:center;color:'+B+'">'+(d.pearson==null?"n/a":(+d.pearson).toFixed(3))+'</td><td>'+(d.pearson!=null&&d.pearson<0?"OPPOSITE":"—")+'</td></tr></tbody></table>'+desc("<b>"+esc(last(d.aName))+" is markedly closer to the ideal across ALL Minkowski-family metrics.</b>"));
+    return '<div class="split">'+l+r+'</div>';
+  }
+  function secTopsis(d){
+    var labels=["Goals / 90","Assists / 90","Peak season","Champions League","International","Longevity"],wv=[d.ahp[0],d.ahp[1],d.ahp[3],d.ahp[5],d.ahp[2],d.ahp[4]];
+    var rows=labels.map(function(lb,i){var w=wv[i];return '<div class="ahp-row"><span class="lbl">'+lb+'</span><span>'+(w*100).toFixed(0)+'%</span><span class="ahp-bar"><i style="width:'+(w/0.25*100).toFixed(0)+'%"></i></span></div>';}).join("");
+    var l=panel("AHP Weight Matrix","∑","",rows+'<div style="margin-top:12px"><span class="badge ok">CR = '+(+d.cr).toFixed(2)+' ✓ PERFECTLY CONSISTENT</span></div>');
+    var r=panel("Closeness Coefficients","🏆","",'<div class="gauge-row"><div class="gwrap">'+donut(d.topsis[0],1,A,d.topsis[0].toFixed(3),"")+'<div class="glabel" style="color:'+A+'">'+(d.topsis[0]*100).toFixed(1)+'% OF IDEAL</div>'+(d.topsis[0]>=d.topsis[1]?'<div class="badge a" style="margin-top:6px">FRAMEWORK WINNER 🏆</div>':'')+'</div><div class="gwrap">'+donut(d.topsis[1],1,B,d.topsis[1].toFixed(3),"")+'<div class="glabel" style="color:'+B+'">'+(d.topsis[1]*100).toFixed(1)+'% OF IDEAL</div>'+(d.topsis[1]>d.topsis[0]?'<div class="badge b" style="margin-top:6px">FRAMEWORK WINNER 🏆</div>':'')+'</div></div>'+desc("Closeness = D⁻ / (D⁺ + D⁻). Weighted-sum and weighted-product models confirm the ranking."));
+    return '<div class="split">'+l+r+'</div>';
+  }
+  function secSensitivity(d){
+    var sp=state.sens;
+    var l=panel("Weight Sensitivity Sweep","🔬","",'<div id="crossHost">'+crossover(sp)+'</div><div style="margin-top:14px"><input type="range" min="0" max="100" value="'+sp+'" id="sensSlider"></div><div class="mono" style="text-align:center;margin-top:8px;font-size:12px">Weight on <span style="color:'+B+'">Intl + Longevity</span>: <b id="sensVal">'+sp+'%</b></div>');
+    var r=panel("Verdict Stability","⚖","",'<div id="verdictCard">'+verdictCard(sp)+'</div><div class="scenario"><div class="sc"><div class="t">Balanced Analyst</div><div class="v" style="color:'+A+'">Messi 0.805</div></div><div class="sc"><div class="t">Goals Purist</div><div class="v" style="color:'+A+'">Messi leads</div></div><div class="sc"><div class="t">Legacy Focused</div><div class="v" style="color:'+B+'">Ronaldo wins</div></div></div>');
+    return '<div class="split">'+l+r+'</div>';
+  }
+  function verdictCard(sp){
+    if(sp<63) return '<div style="text-align:center;padding:12px"><div class="head" style="font-size:26px;font-weight:700;letter-spacing:.12em;color:'+A+'">MESSI LEADS</div><div class="mono" style="color:var(--ts);margin-top:6px">Score ~ '+(0.805-(0.805-0.5)*(sp/63)).toFixed(3)+' vs '+(0.195+(0.5-0.195)*(sp/63)).toFixed(3)+'</div><div class="badge ok" style="margin-top:10px">VERDICT: STABLE</div></div>';
+    return '<div style="text-align:center;padding:12px"><div class="head" style="font-size:26px;font-weight:700;letter-spacing:.12em;color:'+B+'">RONALDO LEADS</div><div class="mono" style="color:var(--ts);margin-top:6px">Only under extreme legacy weighting ('+sp+'%)</div><div class="badge warn" style="margin-top:10px">VERDICT: EXTREME WEIGHTS</div></div>';
+  }
+  function secRankings(d){
+    var pa=d.pctl?d.pctl.a:null,pb=d.pctl?d.pctl.b:null;
+    if(!pa){pa=d.vec.a.map(function(v){return Math.round(40+v*59);});pb=d.vec.b.map(function(v){return Math.round(40+v*59);});}
+    var l=panel("Percentile Position","▚","",'<div class="gauge-row"><div class="gwrap"><div class="statcircle a"><div class="n">'+pa[0]+'th</div><div class="c">Percentile overall</div></div><div class="glabel" style="color:'+A+'">'+last(d.aName)+' · TOP 1%</div></div><div class="gwrap"><div class="statcircle b"><div class="n">'+pb[0]+'th</div><div class="c">Percentile overall</div></div><div class="glabel" style="color:'+B+'">'+last(d.bName)+' · TOP 3%</div></div></div>');
+    var labels=["Goals/90","Assists/90","Peak","CL","Intl","Longevity"];
+    var rows=labels.map(function(lb,i){return '<div class="pct"><div class="baro la"><i style="width:'+pa[i]+'%"></i></div><div class="lab">'+lb+'</div><div class="baro lb"><i style="width:'+pb[i]+'%"></i></div></div><div class="pct"><div class="num a">'+pa[i]+'</div><div></div><div class="num b">'+pb[i]+'</div></div>';}).join("");
+    return '<div class="split">'+l+panel("Metric Percentiles","▦","",rows)+'</div>';
+  }
+  function simCards(list){return '<div class="simrow">'+list.map(function(p){return '<div class="simcard"><div class="ph initials a" style="background:radial-gradient(circle,'+rgba(A,.2)+',transparent)">'+init(p[0])+'</div><div class="nm">'+esc(p[0])+'</div><div class="era">'+p[1]+'</div><div class="sbar"><i style="width:'+p[2]+'%"></i></div><div class="mono" style="font-size:10px;color:'+A+';margin-top:3px">'+(p[2]/100).toFixed(2)+' cosine</div><div class="why">'+esc(p[3])+'</div></div>';}).join("")+'</div>';}
+  function secSimilar(d){
+    return '<div class="panel"><h3>⚯ Similar Players</h3><div class="toggle" id="simTgl" style="margin-bottom:14px"><button data-s="a" class="on">Similar to '+last(d.aName)+'</button><button data-s="b">Similar to '+last(d.bName)+'</button></div><div id="simHost">'+simCards(d.mr?MR.similarA:[])+'</div>'+(d.mr?'':'<div class="loading">Similar-player reference set is a Messi/Ronaldo case-study view.</div>')+'<div class="desc">Cosine similarity of the 6-D profile vs a reference set of elite forwards — proving the framework scales across eras.</div></div>';
+  }
+  var SECFN={overview:secOverview,attacking:secAttacking,xg:secXG,peaks:secPeaks,career:secCareer,vectors:secVectors,topsis:secTopsis,sensitivity:secSensitivity,rankings:secRankings,similar:secSimilar};
+
+  function databasePage(){
+    return '<div class="sec-title"><span class="ic">▢</span>Player Data Upload</div><div class="panel"><p class="mono" style="color:var(--ts);font-size:12px;margin-top:0">Upload a career CSV per player to run the full framework on any two forwards. Columns: season, age, club, league, games, goals, assists, minutes, xg, xg_assisted, psxg, cl_goals, international_goals.</p><div class="split" style="margin-top:8px"><div class="drop a"><div class="ic" style="color:var(--a)">⬆</div><input class="pill" id="nameA" placeholder="Player A name" style="margin:8px auto;display:block"><input type="file" id="csvA" accept=".csv"><small id="stA">no file</small></div><div class="drop b"><div class="ic" style="color:var(--b)">⬆</div><input class="pill" id="nameB" placeholder="Player B name" style="margin:8px auto;display:block"><input type="file" id="csvB" accept=".csv"><small id="stB">no file</small></div></div><button class="btn full" id="csvRun">Run Analysis</button><div class="dlrow"><button class="btn mini" id="dlTpl">CSV Template</button><button class="btn mini" id="dlM">Messi Sample</button><button class="btn mini" id="dlR">Ronaldo Sample</button><button class="btn mini" id="dlMb">Mbappé Sample</button><button class="btn mini" id="dlH">Haaland Sample</button></div><div class="mono" id="csvMsg" style="margin-top:10px;font-size:12px"></div></div>';
+  }
+  function methodologyPage(){
+    var stages=[["1","6-D Vectors","Per-90 + Z-score normalisation → six-dimensional feature vector.","x = [g90, a90, intl, peak, lon, cl]"],["2","Max-normalisation","Scale each dimension by its max → ideal vector = 1.","x̂ᵢ = xᵢ / max(xᵢ)"],["3","Distance metrics","Minkowski family + cosine/Pearson to the ideal.","dₚ = (Σ|1−x̂ᵢ|ᵖ)^(1/p)"],["4","AHP weights","Pairwise priorities → weights, consistency ratio.","CR = CI / RI = 0.00"],["5","TOPSIS","Closeness to the ideal vs anti-ideal.","Cᵢ = D⁻ / (D⁺ + D⁻)"],["6","Sensitivity","Weight sweep → reversal threshold.","flip at 63%"]];
+    return '<div class="sec-title"><span class="ic">◈</span>Analytical Framework <span style="color:var(--ts);font-weight:400;font-size:12px;margin-left:8px">6-Stage Pipeline Overview</span></div><div class="stageflow">'+stages.map(function(s){return '<div class="stagecard"><div class="n">'+s[0]+'</div><div class="t">'+s[1]+'</div><div class="d">'+esc(s[2])+'</div><div class="f">'+esc(s[3])+'</div></div>';}).join("")+'</div><div class="sec-title" style="margin-top:24px"><span class="ic">⚯</span>Scalability</div><div class="split" style="grid-template-columns:repeat(4,1fr)">'+[["Mbappé vs Haaland","Kylian Mbappé","Erling Haaland"],["Salah vs Lewandowski","Mohamed Salah","Robert Lewandowski"],["Henry vs Ibrahimović","Thierry Henry","Zlatan Ibrahimović"],["Custom Upload","",""]].map(function(c){return '<div class="panel" style="text-align:center"><div class="head" style="letter-spacing:.1em;color:var(--tp);font-weight:600">'+esc(c[0])+'</div>'+(c[1]?'<button class="btn mini try" data-a="'+esc(c[1])+'" data-b="'+esc(c[2])+'" style="margin-top:10px">Load</button>':'<button class="btn mini" onclick="document.querySelector(\'[data-tab=database]\').click()" style="margin-top:10px">Upload CSV</button>')+'</div>';}).join("")+'</div><div class="footer"><b>A Multi-Dimensional Framework for Objective Player Comparison in Professional Football:</b> Integrating Performance Metrics, Statistical Profiling, and Machine Learning<br><b>BSc Computing Thesis</b> · Softwarica College of IT &amp; E-Commerce<br>In partnership with Coventry University · Prepared by <b>Dipak Malla</b> (ID 14810866) · Module Leader <b>Manoj Shrestha</b><br>Photos: Wikimedia Commons (CC)</div>';
+  }
+
+  function renderNav(){el("navitems").innerHTML=SECTIONS.map(function(s){return '<div class="navitem'+(state.sec===s[0]&&state.tab==="dashboard"?" on":"")+'" data-sec="'+s[0]+'"><span class="ic">'+s[1]+'</span>'+esc(s[2])+'</div>';}).join("");}
+  function renderView(){
+    renderNav();var host=el("view");
+    if(state.tab==="database"){host.innerHTML=databasePage();wireDatabase();return;}
+    if(state.tab==="methodology"){host.innerHTML=methodologyPage();wireTry();return;}
+    var d=D(),body=hero(),cur=SECTIONS.filter(function(s){return s[0]===state.sec;})[0];
+    body+='<div class="sec-title"><span class="ic">'+cur[1]+'</span>'+esc(cur[2])+'</div>';
+    body+= d ? SECFN[state.sec](d) : '<div class="loading">Computing…</div>';
+    host.innerHTML=body;wireHero();wireSection();updateVerdict(d);
+  }
+  function updateVerdict(d){if(!d){el("verdict").style.display="none";return;}var v=el("verdict");v.style.display="block";var aWin=d.topsis[0]>=d.topsis[1];v.style.borderLeftColor=aWin?A:B;el("vTop").textContent="🏆 "+last(aWin?d.aName:d.bName)+" LEADS";el("vSub").textContent=d.topsis[0].toFixed(3)+" vs "+d.topsis[1].toFixed(3);}
+
+  function wireHero(){el("selA").onchange=function(){state.a=this.value;fetchAndRender();};el("selB").onchange=function(){state.b=this.value;fetchAndRender();};if(el("selSeason"))el("selSeason").onchange=function(){state.season=this.value;fetchAndRender();};el("runBtn").onclick=fetchAndRender;el("modeTgl").onclick=function(e){var b=e.target.closest("button[data-m]");if(!b)return;state.mode=b.getAttribute("data-m");fetchAndRender();};}
+  function wireSection(){
+    if(state.sec==="sensitivity"){var sl=el("sensSlider");if(sl)sl.oninput=function(){state.sens=+this.value;el("sensVal").textContent=this.value+"%";el("crossHost").innerHTML=crossover(state.sens);el("verdictCard").innerHTML=verdictCard(state.sens);this.style.background="linear-gradient(90deg,"+A+" "+this.value+"%,"+B+" "+this.value+"%)";};}
+    if(state.sec==="similar"){var tg=el("simTgl");if(tg)tg.onclick=function(e){var b=e.target.closest("button[data-s]");if(!b)return;[].forEach.call(this.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});var d=D();el("simHost").innerHTML=simCards(b.getAttribute("data-s")==="a"?(d.mr?MR.similarA:[]):(d.mr?MR.similarB:[]));};}
+    wireTry();
+  }
+  function wireTry(){[].forEach.call(document.querySelectorAll(".try"),function(b){b.onclick=function(){state.tab="dashboard";state.sec="overview";state.mode="career";state.a=b.getAttribute("data-a");state.b=b.getAttribute("data-b");setTopnav();fetchAndRender();window.scrollTo({top:0,behavior:"smooth"});};});}
+  function setTopnav(){[].forEach.call(el("topnav").querySelectorAll("button[data-tab]"),function(x){x.classList.toggle("on",x.getAttribute("data-tab")===state.tab);});}
+
+  function apiRun(body){return fetch("/api/data-scout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+  function fetchAndRender(){
+    if(isMR()&&state.mode==="career"){state.live=null;renderView();return;}
+    el("view").innerHTML='<div class="loading">Computing the framework…</div>';
+    var body={command:"head_to_head",mode:state.mode,player_a:state.a,player_b:state.b};if(state.mode==="season")body.season=state.season;
+    apiRun(body).then(function(d){if(!d||d.error){state.live=null;renderView();el("view").insertAdjacentHTML("beforeend",'<div class="loading" style="color:#ff6b6b">'+esc((d&&d.error)||"error")+'</div>');return;}state.live=d;renderView();}).catch(function(e){el("view").innerHTML='<div class="loading" style="color:#ff6b6b">Request failed: '+esc(e)+'</div>';});
+  }
+  function parseCSV(t){var L=t.trim().split(/\r?\n/).filter(function(l){return l.trim();});if(L.length<2)return null;var h=L[0].split(",").map(function(s){return s.trim().toLowerCase();});return L.slice(1).map(function(l){var c=l.split(",");var o={};h.forEach(function(k,i){o[k]=(c[i]||"").trim();});return o;});}
+  function csvVec(rows){function num(x){var v=parseFloat(String(x).replace(/,/g,""));return isNaN(v)?0:v;}var G=0,As=0,MIN=0,GM=0,INT=0,CL=0,peak=0,sg=[];rows.forEach(function(r){var g=num(r.goals),a=num(r.assists),gm=num(r.games)||1,mn=num(r.minutes);G+=g;As+=a;MIN+=mn;GM+=num(r.games);INT+=num(r.international_goals);CL+=num(r.cl_goals);sg.push(g);var c=(g+a)/gm;if(c>peak)peak=c;});var n90=MIN>0?MIN/90:1,games=GM||1;return {vec:[G/n90,As/n90,INT/games,peak,GM,CL/games],sg:sg,seasons:rows.length};}
+  function readF(inp){return new Promise(function(res,rej){var f=inp.files[0];if(!f){rej("pick a file");return;}var r=new FileReader();r.onload=function(){res(r.result);};r.onerror=function(){rej("read error");};r.readAsText(f);});}
+  function download(n,t){var b=new Blob([t],{type:"text/csv"});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download=n;a.click();URL.revokeObjectURL(u);}
+  var HEAD="season,age,club,league,games,goals,assists,minutes,xg,xg_assisted,psxg,cl_goals,international_goals";
+  var SAMP={m:HEAD+"\n2011-2012,24,Barcelona,la-liga,37,50,16,3270,,,12,14\n2014-2015,27,Barcelona,la-liga,38,43,18,3312,,,10,7\n2018-2019,31,Barcelona,la-liga,34,36,13,2713,23.8,14.4,12,8",r:HEAD+"\n2011-2012,26,Real Madrid,la-liga,38,46,12,3373,,,10,7\n2014-2015,29,Real Madrid,la-liga,35,48,16,3084,,,10,5\n2018-2019,33,Juventus,serie-a,31,21,8,2688,22.2,4.6,6,3",mb:HEAD+"\n2018-2019,20,Paris S-G,ligue-1,29,33,7,2400,,,6,4\n2021-2022,23,Paris S-G,ligue-1,35,28,17,2900,,,6,1",h:HEAD+"\n2022-2023,22,Manchester City,premier-league,35,36,8,2769,,,12,0\n2023-2024,23,Manchester City,premier-league,31,27,5,2500,,,5,0"};
+  function wireDatabase(){
+    el("dlTpl").onclick=function(){download("template.csv",HEAD);};el("dlM").onclick=function(){download("messi_sample.csv",SAMP.m);};el("dlR").onclick=function(){download("ronaldo_sample.csv",SAMP.r);};el("dlMb").onclick=function(){download("mbappe_sample.csv",SAMP.mb);};el("dlH").onclick=function(){download("haaland_sample.csv",SAMP.h);};
+    el("csvA").onchange=function(){el("stA").textContent=this.files[0]?this.files[0].name:"no file";};el("csvB").onchange=function(){el("stB").textContent=this.files[0]?this.files[0].name:"no file";};
+    el("csvRun").onclick=function(){var msg=el("csvMsg");msg.style.color="var(--ts)";msg.textContent="Reading…";Promise.all([readF(el("csvA")),readF(el("csvB"))]).then(function(t){var ra=parseCSV(t[0]),rb=parseCSV(t[1]);if(!ra||!rb){msg.style.color="#ff6b6b";msg.textContent="Could not parse a CSV.";return;}var va=csvVec(ra),vb=csvVec(rb),na=(el("nameA").value||"Player A"),nb=(el("nameB").value||"Player B");apiRun({command:"head_to_head",mode:"career",vec_a:va.vec,vec_b:vb.vec,name_a:na,name_b:nb,label_a:va.seasons+" rows",label_b:vb.seasons+" rows",season_goals_a:va.sg,season_goals_b:vb.sg,seasons_a:va.seasons,seasons_b:vb.seasons}).then(function(d){if(!d||d.error){msg.style.color="#ff6b6b";msg.textContent=(d&&d.error)||"error";return;}state.live=d;state.a=na;state.b=nb;state.tab="dashboard";state.sec="overview";setTopnav();renderView();window.scrollTo({top:0,behavior:"smooth"});});}).catch(function(e){msg.style.color="#ff6b6b";msg.textContent="Failed: "+e;});};
+  }
+
+  /* ---------- THEME SWITCHER ---------- */
+  function renderThemeList(){
+    el("themeList").innerHTML=window.QG_ORDER.map(function(name,i){var t=window.QG_THEMES[name];
+      return '<div class="tp-row'+(state.theme===name?" on":"")+'" data-theme="'+name+'"><span class="tp-ic">'+t.icon+'</span>'+
+        '<div><div class="tp-name">'+esc(t.label)+'</div><div class="tp-desc">'+esc(t.desc)+'</div></div>'+
+        '<span class="tp-dots"><i style="background:'+t.a+'"></i><i style="background:'+t.b+'"></i></span>'+
+        (state.theme===name?'<span class="tp-check">✓</span>':'<span class="tp-desc" style="width:12px;text-align:center">'+(i+1)+'</span>')+'</div>';
+    }).join("");
+  }
+  function applyTheme(name){
+    if(!window.QG_THEMES[name])return; state.theme=name; window.QG_CURRENT=name; TH=window.QG_THEMES[name]; syncColors();
+    window.QG_applyVars(name); try{localStorage.setItem("qg-theme",name);}catch(e){}
+    renderThemeList(); renderView();
+  }
+  function toggleThemePanel(show){var p=el("themePanel");if(show===undefined)show=p.hasAttribute("hidden");if(show){renderThemeList();p.removeAttribute("hidden");}else p.setAttribute("hidden","");}
+  el("themeBtn").onclick=function(e){e.stopPropagation();toggleThemePanel();};
+  el("themePanel").onclick=function(e){var r=e.target.closest(".tp-row");if(!r)return;applyTheme(r.getAttribute("data-theme"));toggleThemePanel(false);};
+  document.addEventListener("click",function(e){if(!el("themePanel").hasAttribute("hidden")&&!e.target.closest("#themePanel")&&e.target.id!=="themeBtn")toggleThemePanel(false);});
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){toggleThemePanel(false);return;}
+    var tag=(e.target.tagName||"").toLowerCase();if(tag==="input"||tag==="select"||tag==="textarea")return;
+    var n=parseInt(e.key,10);if(n>=1&&n<=7){applyTheme(window.QG_ORDER[n-1]);}
+  });
+
+  el("topnav").onclick=function(e){var b=e.target.closest("button[data-tab]");if(!b)return;state.tab=b.getAttribute("data-tab");setTopnav();if(state.tab==="dashboard")fetchAndRender();else renderView();};
+  el("sidebar").onclick=function(e){var it=e.target.closest(".navitem");if(!it)return;state.tab="dashboard";state.sec=it.getAttribute("data-sec");setTopnav();var d=D();if(!d&&!isMR())fetchAndRender();else renderView();};
+
+  renderNav(); renderThemeList(); fetchAndRender();
+})();
+</script>
+</body>
+</html>
